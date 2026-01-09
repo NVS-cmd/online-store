@@ -2,3 +2,8 @@ help.txt
 *Plan.xlsx
 *.exe
 *.json
+.vscode/
+build/
+*.obj
+CMakeCache.txt
+CMakeFiles/
