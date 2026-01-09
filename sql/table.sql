@@ -5,7 +5,7 @@ CREATE DATABASE online_store;
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(100),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'manager', 'customer')),
     password_hash VARCHAR,
     loyalty_level INT NOT NULL CHECK (loyalty_level IN (0, 1))
