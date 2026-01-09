@@ -2,6 +2,8 @@
 #include "../include/menu.hpp"
 using namespace std;
 
+extern DatabaseConnection* db;
+
 void printMenu() {
     cout << "\n===== Пожалуйста, выберете свою роль: =====\n";
     cout << "1. Войти как Администратор\n";
@@ -11,6 +13,7 @@ void printMenu() {
 }
 
 void menuAdmin() {
+    int choice;
     cout << "\n\033[1m===== Меню администратора: =====\033[0m\n";
     cout << "1.  Добавить новый продукт\n";
     cout << "2.  Обновить информацию о продукте\n";
@@ -22,6 +25,48 @@ void menuAdmin() {
     cout << "8.  Просмотр журнала аудита\n";
     cout << "9.  Сформировать отчет (CSV)\n";
     cout << "10. Выход\n";
+    cout << ">> ";
+    cin >> choice;
+
+    switch (choice)
+    {
+    //Добавить новый продукт
+    case 1: {
+        string name, price, stock;
+        cout << "Введите название: "; cin >> name;
+        cout << "Цена: "; cin >> price;
+        cout << "На складе: "; cin >> stock;
+        string sql = "INSERT INTO products(name, price, stock_quantity) VALUES('" + name + "', " + price + ", " + stock + ")";
+        db->executeNonQuery(sql);
+        cout << "Продукт добавлен!\n";
+        }
+        break;
+    
+    //Обновить информацию о продукте
+    case 2: {
+        string id, name, price;
+        cout << "ID продукта: "; cin >> id;
+        cout << "Новое название: "; cin >> name;
+        cout << "Новая цена: "; cin >> price;
+        string sql = "UPDATE products SET name='" + name + "', price='" + price + "' WHERE product_id=" + id;
+        db->executeNonQuery(sql);
+        cout << "Продукт обновлен!\n";
+        }
+        break;
+    
+    //Удалить продукт
+    case 3: {
+        string id;
+        cout << "ID продукта: "; cin >> id;
+        string sql = "DELETE FROM products WHERE product_id=" + id;
+        db->executeNonQuery(sql);
+        cout << "Продукт удален!\n";
+        }
+        break;
+
+    default:
+        break;
+    }
 }
 
 void menuManager() {
