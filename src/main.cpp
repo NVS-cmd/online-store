@@ -1,31 +1,55 @@
-#include "../include/user.hpp"
+#include "../include/database.hpp"
+#include "../include/admin.hpp"
+#include "../include/manager.hpp"
+#include "../include/customer.hpp"
+#include <iostream>
+#include <memory>
+
 using namespace std;
 
-class Customer : public User {
-public:
-    Customer(int id, DatabaseConnection* database) : User(id, database) {}
+int main() {
+    DatabaseConnection db("dbname=online_store user=postgres password=1234 port=1234");
     
-    void createOrder() override {
-        this->db->executeNonQuery("INSERT INTO orders (user_id, status, total_price) VALUES (" 
-                                 + to_string(this->user_id) + ", 'pending', 0.00)");
-        cout << "Заказ создан!\n";
-    }
-    
-    void viewOrderStatus() override {
-        cout << "\n=== Мои заказы ===\n";
-        auto orders = this->db->executeQuery(
-            "SELECT order_id||' - '||status||' ('||total_price||'₽)' FROM orders WHERE user_id=" 
-            + to_string(this->user_id)
-        );
-        for (const auto& order : orders) {
-            cout << order << endl;
+    while (true) {
+        system("cls");
+        cout << "\n===== ИНТЕРНЕТ-МАГАЗИН =====\n";
+        cout << "Пожалуйста, выберите свою роль:\n";
+        cout << "1. Войти как Администратор\n";
+        cout << "2. Войти как Менеджер\n";
+        cout << "3. Войти как Покупатель\n";
+        cout << "4. Выход\n>> ";
+        
+        int role_choice;
+        cin >> role_choice;
+        
+        switch (role_choice) {
+            case 1: {
+                auto admin = std::make_unique<Admin>(1, &db);
+                admin->adminMenu();     // Полное меню админа (10 пунктов)
+                break;
+            }
+            
+            case 2: {
+                auto manager = std::make_unique<Manager>(2, &db);
+                manager->managerMenu(); // Полное меню менеджера (8 пунктов)
+                break;
+            }
+            
+            case 3: {
+                auto customer = std::make_unique<Customer>(3, &db);
+                customer->customerMenu(); // Полное меню покупателя (9 пунктов)
+                break;
+            }
+            
+            case 4: 
+                return 0;
+                
+            default: 
+                cout << "Неверный выбор роли!\n";
+                cout << "Нажмите Enter..."; 
+                cin.ignore(); 
+                cin.get();
         }
     }
-    
-    void cancelOrder() override {
-        string order_id;
-        cout << "ID заказа: "; cin >> order_id;
-        this->db->executeNonQuery("UPDATE orders SET status='canceled' WHERE order_id=" + order_id);
-        cout << "Заказ отменен!\n";
-    }
-};
+    return 0;
+}
