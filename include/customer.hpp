@@ -1,4 +1,6 @@
-#include "../include/user.hpp"
+#pragma once
+#include <iostream>
+#include "user.hpp"
 using namespace std;
 
 class Customer : public User {
