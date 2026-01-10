@@ -78,25 +78,35 @@ public:
     }
     
     void viewOrderDetails() {
-        int id;
+        system("cls");
+        int id; 
         cout << "ID заказа: "; cin >> id;
+        
         auto details = db->executeQuery(
-            "SELECT p.name, oi.quantity, oi.unit_price "
+            "SELECT p.name, oi.quantity, oi.price "
             "FROM order_items oi JOIN products p ON oi.product_id = p.product_id "
             "WHERE oi.order_id = " + to_string(id));
+        
         cout << "\n=== Детали заказа #" << id << " ===\n";
+        
         if (details.empty()) {
-            cout << "  Заказ не найден\n";
-            return;
+            cout << "  Заказ не найден или пуст\n";
+        } else {
+            for (auto& item : details) {
+                cout << "  " << item[0] << " x" << item[1] << " по " << item[2] << " руб.\n";
+            }
         }
-        for (auto& item : details)
-            cout << "  " << item[0] << " x" << item[1] << " по " << item[2] << " руб.\n";
+        
+        cout << "\nНажмите Enter...";
+        cin.ignore(1000, '\n');
+        cin.get();
     }
+
     
     void changeOrderStatus() {
         int id; string status;
         cout << "ID заказа: "; cin >> id;
-        cout << "Статус (approved/shipped): "; cin >> status;
+        cout << "Статус (pending, completed, canceled, returned): "; cin >> status;
         db->executeNonQuery("UPDATE orders SET status='" + status + 
                            "' WHERE order_id=" + to_string(id));
         cout << "Статус изменен\n";
@@ -115,11 +125,11 @@ public:
     }
     
     void viewStatusHistory() {
-        int id;
+        int id; 
         cout << "ID заказа: "; cin >> id;
         auto history = db->executeQuery(
-            "SELECT old_status, new_status, change_time "
-            "FROM order_status_history WHERE order_id=" + to_string(id) + " ORDER BY change_time");
+            "SELECT old_status, new_status, changed_at "
+            "FROM order_status_history WHERE order_id=" + to_string(id) + " ORDER BY changed_at");
         cout << "\n=== История статусов #" << id << " ===\n";
         if (history.empty()) {
             cout << "  История пуста\n";

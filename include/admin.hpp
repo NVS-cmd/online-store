@@ -114,21 +114,34 @@ private:
     }
     
     void viewOrderDetails() {
+        system("cls");
         int id; 
         cout << "ID заказа: "; cin >> id;
+        
         auto details = db->executeQuery(
-            "SELECT p.name, oi.quantity, oi.unit_price "
+            "SELECT p.name, oi.quantity, oi.price "
             "FROM order_items oi JOIN products p ON oi.product_id = p.product_id "
             "WHERE oi.order_id = " + to_string(id));
+        
         cout << "\n=== Детали заказа #" << id << " ===\n";
-        for (auto& item : details)
-            cout << "  " << item[0] << " x" << item[1] << " по " << item[2] << " руб.\n";
+        
+        if (details.empty()) {
+            cout << "  Заказ не найден или пуст\n";
+        } else {
+            for (auto& item : details) {
+                cout << "  " << item[0] << " x" << item[1] << " по " << item[2] << " руб.\n";
+            }
+        }
+        
+        cout << "\nНажмите Enter...";
+        cin.ignore(1000, '\n');
+        cin.get();
     }
-    
+
     void changeOrderStatus() {
         int id; string status;
         cout << "ID заказа: "; cin >> id;
-        cout << "Статус (pending/approved/shipped): "; cin >> status;
+        cout << "Статус (pending, completed, canceled, returned): "; cin >> status;
         db->executeNonQuery("UPDATE orders SET status='" + status + 
                            "' WHERE order_id=" + to_string(id));
         cout << "Статус изменен\n";
@@ -138,8 +151,8 @@ private:
         int id; 
         cout << "ID заказа: "; cin >> id;
         auto history = db->executeQuery(
-            "SELECT old_status, new_status, change_time "
-            "FROM order_status_history WHERE order_id=" + to_string(id) + " ORDER BY change_time");
+            "SELECT old_status, new_status, changed_at "
+            "FROM order_status_history WHERE order_id=" + to_string(id) + " ORDER BY changed_at");
         cout << "\n=== История статусов #" << id << " ===\n";
         if (history.empty()) {
             cout << "  История пуста\n";
@@ -152,8 +165,8 @@ private:
     void viewAuditLog() {
         cout << "\n=== ЖУРНАЛ АУДИТА (последние 20) ===\n";
         auto audit = db->executeQuery(
-            "SELECT operation, table_name, timestamp FROM audit_log "
-            "ORDER BY timestamp DESC LIMIT 20");
+            "SELECT * FROM audit_log "
+            "ORDER BY log_id DESC LIMIT 20");
         if (audit.empty()) {
             cout << "  Лог пуст\n";
             return;
@@ -162,16 +175,25 @@ private:
             cout << "  " << log[0] << " (" << log[1] << ") " << log[2] << endl;
     }
     
-    void generateCSVReport() {
-        auto orders = db->executeQuery("SELECT order_id, status, total_price, created_at FROM orders ORDER BY created_at DESC");
-        string filename = "report_" + to_string(time(nullptr)) + ".csv";
+    void generateCSVReport() {     
+        static int report_counter = 1;
+        string filename = "C:\\NV\\BMSTU\\Program\\online-store\\reports\\report_" 
+                        + string(3 - to_string(report_counter).length(), '0') 
+                        + to_string(report_counter) + ".csv";
+        
+        auto orders = db->executeQuery("SELECT order_id, status, total_price FROM orders ORDER BY order_id");
+        
         ofstream csv(filename);
-        csv << "ID,Статус,Сумма,Дата\n";
+        csv << "ID,Status,Summa rub.\n";
         
         for (auto& order : orders) {
-            csv << order[0] << "," << order[1] << "," << order[2] << "," << order[3] << "\n";
+            if (order.size() >= 3) {
+                csv << order[0] << "," << order[1] << "," << order[2] << "\n";
+            }
         }
         csv.close();
+        
         cout << "Отчет сохранен: " << filename << endl;
+        report_counter++;
     }
 };

@@ -23,7 +23,7 @@ vector<vector<string>> DatabaseConnection::executeQuery(const string& query) {
         cout << "Вернул " << results.size() << " строк\n";
     } catch (const exception& e) {
         cerr << "Ошибка SELECT: " << e.what() << endl;
-        results = {{"1 - pending (0₽)"}, {"2 - completed (1500₽)"}}; // заглушка
+        results = {}; // заглушка
     }
     return results;
 }
