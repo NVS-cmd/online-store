@@ -97,8 +97,8 @@ __log_user_action():__ Хранимая функция, вызываемая и�
 4. make
 
 ##### Или сборка в терминале
-**Windows powershell:** __g++ -std=c++17 (Get-ChildItem src/*.cpp).FullName -lpqxx -lpq -o shop.exe__
-**Linux Bash:** __g++ -std=c++17 src/*.cpp -lpqxx -lpq -o shop.exe__
+##### **Windows powershell:** __g++ -std=c++17 (Get-ChildItem src/*.cpp).FullName -lpqxx -lpq -o shop.exe__
+##### **Linux Bash:** __g++ -std=c++17 src/*.cpp -lpqxx -lpq -o shop.exe__
 
 #### Запуск: 
 Запустите скомпилированное приложение из директории build.
